@@ -1,0 +1,14 @@
+<html>
+  <body>
+    <form method="POST" action="/">
+      <label>Project name</label>
+        <input type="text" name="project_name">
+      </label>
+      <input type="submit" value="Add new project">
+    </form>
+  </body>
+  <h1>Projects</h1>
+  {% for project in projects %}
+    <p>{{project.project_name}}</p>
+  {% endfor %}
+</html>

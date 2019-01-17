@@ -1,4 +1,8 @@
-from flask import Flask, request
+from flask import Flask
+from flask import request
+# from flask import render_template
+from flask import jsonify
+from json import dumps
 from flask_sqlalchemy import SQLAlchemy
 # from flask_marshmallow import Marshmallow
 import os
@@ -9,19 +13,39 @@ app = Flask(__name__)
 project_directory = os.path.abspath(os.path.dirname(__file__))
 database_file = 'sqlite:///' + os.path.join(project_directory, 'projectnotes.sqlite')
 app.config['SQLALCHEMY_DATABASE_URI'] = database_file
+app.config['JSONIFY_MIMETYPE'] = 'application/json'
 
 db = SQLAlchemy(app)
 
 class Project(db.Model):
-    project_name = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
-    def __init__(self, project_name):
-        self.project_name = project_name
+    title = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
+    # client = db.Column(db.String(30), unique=True, nullable=False)
+    # description = db.Column(db.String(200), unique=False, nullable=True)
+    def __init__(self, title):
+        self.title = title
 
-@app.route("/", methods=["GET"])
-def home():
-    # if request.form:
-    #     print(request.form)
-    return "Projects list"
+# Get projects
+@app.route("/projects", methods=["GET"])
+def get_projects():
+    projects = Project.query.all()
+    print(projects)
+    return "projects"
+
+# Add project
+@app.route("/projects", methods=["POST"])
+def add_projects():
+    # project = Project(title=request.form['title'])
+    # db.session.add(project)
+    # db.session.commit()
+    data = request.get_json()
+    title = data['title']
+    project = Project()
+    return jsonify({"result": "Success", "title": title})
+
+# Get project
+@app.route("/projects/<id>", methods=["GET"])
+def get_project():
+    project = Project.query.get(id)
 
 
 
@@ -42,9 +66,6 @@ def home():
 #
 # user_schema = UserSchema()
 # users_schema = UserSchema(many=True)
-#
-#
-#
 #
 #
 # # Create new user
@@ -91,7 +112,7 @@ def home():
 #     db.session.delete(user)
 #     db.session.commit()
 #     return user_schema.jsonify(user)
-#
+
 
 if __name__ == '__main__':
     app.run(debug=True)
