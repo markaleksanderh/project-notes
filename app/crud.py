@@ -16,6 +16,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = database_file
 app.config['JSONIFY_MIMETYPE'] = 'application/json'
 
 db = SQLAlchemy(app)
+# ma = Marshmallow(app)
 
 class Project(db.Model):
     title = db.Column(db.String(80), unique=True, nullable=False, primary_key=True)
@@ -23,29 +24,40 @@ class Project(db.Model):
     # description = db.Column(db.String(200), unique=False, nullable=True)
     def __init__(self, title):
         self.title = title
+    def __str__(self):
+        return self.title
+
+# @app.route("/", methods=["GET"])
+# def get_index():
+#     return "Hello world"
 
 # Get projects
 @app.route("/projects", methods=["GET"])
 def get_projects():
     projects = Project.query.all()
+    # print(json.dumps(projects))
+    # print(jsonify({'projects': projects}))
+    # return str(projects)
+    # return jsonify({'projects': projects})
+    projects = [str(i) for i in projects]
     print(projects)
-    return "projects"
+    return jsonify({'projects': projects})
 
 # Add project
 @app.route("/projects", methods=["POST"])
 def add_projects():
-    # project = Project(title=request.form['title'])
-    # db.session.add(project)
-    # db.session.commit()
     data = request.get_json()
     title = data['title']
-    project = Project()
+    project = Project(title)
+    db.session.add(project)
+    db.session.commit()
     return jsonify({"result": "Success", "title": title})
 
 # Get project
 @app.route("/projects/<id>", methods=["GET"])
-def get_project():
+def get_project(id):
     project = Project.query.get(id)
+    return "View project"
 
 
 
