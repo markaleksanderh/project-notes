@@ -3,6 +3,9 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import os
+import graphene
+from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
+from flask_graphql import GraphQLView
 
 app = Flask(__name__)
 app.debug = True
@@ -41,8 +44,38 @@ class Post(db.Model):
         return '<Post %r>' % self.title
 
 # Schema Objects
+class PostObject(SQLAlchemyObjectType):
+    class Meta:
+        model = Post
+        interfaces = (graphene.relay.Node, )
+
+class UserObject(SQLAlchemyObjectType):
+    class Meta:
+        model = User
+        interfaces = (graphene.relay.Node, )
+
+class Query(graphene.ObjectType):
+    node = graphene.relay.Node.Field()
+    all_posts = SQLAlchemyConnectionField(PostObject)
+    all_users = SQLAlchemyConnectionField(UserObject)
+
+schema = graphene.Schema(query=Query)
+
 
 # Routes
+
+app.add_url_rule(
+    '/graphql',
+    view_func=GraphQLView.as_view(
+        'graphql',
+        schema=schema,
+        graphiql=True
+    )
+)
+
+
+
+
 @app.route('/')
 def index():
     return '<p>Hello GraphQL</p>'
