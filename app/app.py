@@ -24,11 +24,9 @@ db = SQLAlchemy(app)
 # Models
 class User(db.Model):
     __tablename__ = 'users'
-
     uuid = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(256), index=True, unique=True)
     posts = db.relationship('Post', backref='author')
-
     def __repr__(self):
         return '<User %r>' % self.username
 
@@ -38,9 +36,9 @@ class Post(db.Model):
     title = db.Column(db.String(256), index=True)
     body = db.Column(db.Text)
     author_id = db.Column(db.Integer, db.ForeignKey('users.uuid'))
-
     def __repr__(self):
         return '<Post %r>' % self.title
+
 
 # Schema Objects
 class PostObject(SQLAlchemyObjectType):
@@ -63,23 +61,31 @@ class CreatePost(graphene.Mutation):
         title = graphene.String(required=True)
         body = graphene.String(required=True)
         username = graphene.String(required=True)
-
     post = graphene.Field(lambda: PostObject)
-
     def mutate(self, info, title, body, username):
         user = User.query.filter_by(username=username).first()
         post = Post(title=title, body=body)
-
         if user is not None:
             post.author = user
-
         db.session.add(post)
         db.session.commit()
-
         return CreatePost(post=post)
+
+class CreateUser(graphene.Mutation):
+    class Arguments:
+        username = graphene.String(required=True)
+        name_length = graphene.Int(required=True)
+    user = graphene.Field(lambda: UserObject)
+    def mutate(self, info, username):
+        user = User(username=username)
+        db.session.add(user)
+        db.session.commit()
+        return CreateUser(user=user)
+
 
 class Mutation(graphene.ObjectType):
     create_post = CreatePost.Field()
+    create_user = CreateUser.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
 
