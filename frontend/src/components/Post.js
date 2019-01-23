@@ -5,7 +5,7 @@ class Post extends Component {
     return (
       <div>
         <h3>{this.props.post.node.title}</h3>
-        <p>{this.props.post.node.body}</p>
+        <p>{this.props.post.node.body} <span>{this.props.post.node.id}, {this.props.post.node.uuid}</span></p>
       </div>
     )
   }
