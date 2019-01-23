@@ -9,6 +9,7 @@ const POST_QUERY = gql`
       edges{
         node{
           id
+          uuid
           title
           body
         }
@@ -28,12 +29,12 @@ class PostList extends Component {
           console.log(error)
           return <div>Error</div>
         }
-        const postsToRender = data.allPosts
+        const postsToRender = data.allPosts.edges
         console.log(postsToRender)
         return (
 
           <div>
-            {postsToRender.map(post => <Post key={post.id} post={post} />)}
+            {postsToRender.map(post => <Post key={post.node.id} post={post} />)}
           </div>
         )
       }}
