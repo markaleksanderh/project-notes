@@ -1,6 +1,7 @@
 # https://medium.com/@marvinkome/creating-a-graphql-server-with-flask-ae767c7e2525
 
 from flask import Flask
+from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 import os
 import graphene
@@ -8,6 +9,7 @@ from graphene_sqlalchemy import SQLAlchemyObjectType, SQLAlchemyConnectionField
 from flask_graphql import GraphQLView
 
 app = Flask(__name__)
+CORS(app)
 app.debug = True
 
 # Configs
